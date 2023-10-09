@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class V2rayConfig extends Model
 {
+
+    public array|null $config_data = null;
+
     protected $fillable = [
         "remark",
         "size",
