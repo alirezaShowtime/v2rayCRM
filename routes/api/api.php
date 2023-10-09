@@ -22,3 +22,4 @@ Route::post('login', [AuthController::class, 'login']);
 
 Route::middleware('jwt:user')->get('configs', [V2rayConfigController::class, 'getAll']);
 Route::middleware('jwt:user')->get('config/{id}', [V2rayConfigController::class, 'get']);
+Route::middleware('jwt:user')->post('config/{id}', [V2rayConfigController::class, 'enable']);
