@@ -12,6 +12,7 @@
 */
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\V2rayConfigController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -19,3 +20,4 @@ Route::middleware('jwt:user,refresh')->get('refresh-token', [AuthController::cla
 
 Route::post('login', [AuthController::class, 'login']);
 
+Route::middleware('jwt:user')->get('config/{id}', [V2rayConfigController::class, 'get']);

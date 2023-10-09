@@ -40,7 +40,7 @@ class JWTAuthenticate
 
 
         } catch (\Exception $e) {
-dd($e);
+
             return \response(null, 402);
         }
 
