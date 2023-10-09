@@ -33,8 +33,8 @@ class ResponseUtil
                 [
                     'message' => $message,
                     'status' => $status,
+                    'data' => $body->toArray($request),
                 ]
-                + $body->toArray($request)
             );
     }
 
