@@ -7,7 +7,7 @@ use App\Utils\JWTUtil;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-class LoginController extends Controller
+class AuthController extends Controller
 {
     public function login(Request $request)
     {
@@ -30,4 +30,15 @@ class LoginController extends Controller
         ]);
 
     }
+
+    public function refreshRToken(Request $request)
+    {
+        return successRes([
+            "token" => [
+                "access" => JWTUtil::generateForUser($request->user),
+                "refresh" => $request->bearerToken(),
+            ],
+        ]);
+    }
+
 }
