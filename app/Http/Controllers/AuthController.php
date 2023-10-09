@@ -25,7 +25,7 @@ class AuthController extends Controller
         return successRes([
             "token" => [
                 "access" => JWTUtil::generateForUser($user),
-                "refresh" => JWTUtil::generateForUser($user, JWTUtil::getRefreshTokenLifetime()),
+                "refresh" => JWTUtil::generateRefreshTokenForUser($user),
             ],
         ]);
 

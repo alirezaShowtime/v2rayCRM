@@ -15,7 +15,7 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::middleware('jwt:user')->get('refresh-token', [AuthController::class, 'refreshRToken']);
+Route::middleware('jwt:user,refresh')->get('refresh-token', [AuthController::class, 'refreshRToken']);
 
 Route::post('login', [AuthController::class, 'login']);
 
