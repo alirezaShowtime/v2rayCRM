@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UserRegisterRequest;
+use App\Http\Resources\Admin\UserResource;
 use App\Http\Resources\Admin\UsersResource;
 use App\Models\User;
 use App\Utils\JWTUtil;
@@ -15,7 +16,6 @@ class UserController extends Controller
 
     public function register(UserRegisterRequest $request)
     {
-
 
 
         try {
@@ -43,6 +43,18 @@ class UserController extends Controller
             return error500Res();
         }
 
+    }
+
+    public function getUser(Request $request, int $id)
+    {
+
+        try {
+            $user = User::find($id);
+        } catch (\Exception $e) {
+            return error500Res();
+        }
+
+        return successJsonResource(new UserResource($user), $request);
     }
 
     public function getAll(Request $request)
