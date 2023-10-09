@@ -28,9 +28,7 @@ class Settings extends Model
 
     public static function setValue(string $key, string $value): bool
     {
-        return DB::table("settings")
-            ->where('key', $key)
-            ->updateOrInsert(['key' => $key], ['value', $value]);
+        return DB::table("settings")->updateOrInsert(['key' => $key], ['value' => $value]);
     }
 
     public static function getMarzbanAccessToken()

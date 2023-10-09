@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Http;
 class MarzbanUtil
 {
 
-    public const BASE_API_URL = "";
+    public const BASE_API_URL = "http://moboland.shop:8000/api";
 
     private static function generateConfigUsername(V2rayConfig $v2rayConfig)
     {
@@ -36,7 +36,7 @@ class MarzbanUtil
         try {
 
             return [
-                "authentication" => "Bearer " . self::getAccessToken(),
+                "Authorization" => "Bearer " . self::getAccessToken(),
                 "content-type" => "application/json",
             ];
 
@@ -67,7 +67,7 @@ class MarzbanUtil
             throw new \Exception("MARZBAN_ADMIN_PASSWORD environment variable undefined");
         }
 
-        $res = Http::withHeaders(self::defaultHeader())->post(self::getUrl('admin/token'), [
+        $res = Http::asForm()->post(self::getUrl('admin/token'), [
             "username" => $username,
             "password" => $password,
         ]);
@@ -174,12 +174,13 @@ class MarzbanUtil
             $marzbarnUsers[$matched->group(1)] = $config;
         }
 
-        $v2rayConfigs = V2rayConfig::whereIn('id', array_keys($marzbarnUsers))->get();
+        $v2rayConfigs = V2rayConfig::where('user_id', $user->id)->get();
 
         foreach ($v2rayConfigs as $v2rayConfig) {
+            if (!array_key_exists($v2rayConfig->id, $marzbarnUsers)) continue;
             $v2rayConfig->setConfig($marzbarnUsers[$v2rayConfig->id]);
         }
 
-        return $v2rayConfigs;
+        return $v2rayConfigs->all();
     }
 }
