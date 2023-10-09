@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-//    public function register(Request $request)
+
     public function register(UserRegisterRequest $request)
     {
 
