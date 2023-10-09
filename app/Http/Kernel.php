@@ -4,6 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\JWTAuthenticate;
 use App\Http\Middleware\SetAcceptJsonHeader;
+use App\Http\Middleware\UserNotBlock;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -68,5 +69,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'jwt' => JWTAuthenticate::class,
+        'userNotBlock' => UserNotBlock::class,
     ];
 }

@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->string('phone')->unique();
             $table->string("username")->unique();
             $table->string('password');
-            $table->boolean("is_blocked")->default(false);
+            $table->timestamp("blocked_at")->nullable();
             $table->uuid();
             $table->softDeletes();
             $table->timestamps();

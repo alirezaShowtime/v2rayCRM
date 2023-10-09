@@ -16,10 +16,10 @@ use App\Http\Controllers\V2rayConfigController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::middleware('jwt:user,refresh')->get('refresh-token', [AuthController::class, 'refreshRToken']);
+Route::middleware(['jwt:user,refresh', 'userNotBlock'])->get('refresh-token', [AuthController::class, 'refreshRToken']);
 
-Route::post('login', [AuthController::class, 'login']);
+Route::middleware('userNotBlock')->post('login', [AuthController::class, 'login']);
 
-Route::middleware('jwt:user')->get('configs', [V2rayConfigController::class, 'getAll']);
-Route::middleware('jwt:user')->get('config/{id}', [V2rayConfigController::class, 'get']);
-Route::middleware('jwt:user')->post('config/{id}', [V2rayConfigController::class, 'enable']);
+Route::middleware(['jwt:user', 'userNotBlock'])->get('configs', [V2rayConfigController::class, 'getAll']);
+Route::middleware(['jwt:user', 'userNotBlock'])->get('config/{id}', [V2rayConfigController::class, 'get']);
+Route::middleware(['jwt:user', 'userNotBlock'])->post('config/{id}', [V2rayConfigController::class, 'enable']);
