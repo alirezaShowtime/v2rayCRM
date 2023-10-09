@@ -112,4 +112,8 @@ return [
 
     'password_timeout' => 10800,
 
+
+    'jwt_key' => 'jfp098eruw390ruj90wpk7p08ud9p00w3ujnp09w48dp0934vuwp0gfg',
+    'jwt_token_lifetime' => '15d',
+    'jwt_refresh_token_lifetime' => '30d'
 ];
