@@ -36,4 +36,14 @@ class AuthController extends Controller
 
     }
 
+    public function refreshRToken(Request $request)
+    {
+        return successRes([
+            "token" => [
+                "access" => JWTUtil::generateForUser($request->admin),
+                "refresh" => $request->bearerToken(),
+            ],
+        ]);
+    }
+
 }
