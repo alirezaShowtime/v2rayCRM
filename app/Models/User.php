@@ -35,4 +35,10 @@ class User extends Authenticatable
             $q->uuid = $q->uuid ?? Str::uuid();
         });
     }
+
+    public function configs()
+    {
+        return $this->hasMany(V2rayConfig::class);
+    }
+
 }

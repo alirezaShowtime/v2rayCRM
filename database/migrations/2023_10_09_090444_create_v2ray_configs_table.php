@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->unsignedInteger("size")->nullable();
             $table->unsignedInteger("days");
             $table->unsignedBigInteger("price");
-            $table->timestamp("expire_at")->nullable();
+            $table->timestamp("expired_at")->nullable();
             $table->timestamp("enabled_at")->nullable();
             $table->foreignIdFor(Admin::class);
             $table->foreignIdFor(User::class);

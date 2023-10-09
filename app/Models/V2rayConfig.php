@@ -21,6 +21,11 @@ class V2rayConfig extends Model
         'marzban_config_username'
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function setConfig(array $config)
     {
 
