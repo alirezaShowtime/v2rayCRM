@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\MarzbanException;
 use App\Http\Resources\V2rayConfigResource;
-use App\Models\V2rayConfig;
 use App\Utils\MarzbanUtil;
 use Illuminate\Http\Request;
 use Mockery\Exception;
@@ -13,7 +12,7 @@ class V2rayConfigController extends Controller
 {
     public function get(Request $request, int $id)
     {
-        $config = V2rayConfig::find($id);
+        $config = $request->user->configs()->where('id', $id)->first();
 
         if ($config == null) {
             return errorRes(404, "کانفیگی با این شناسه یافت نشد.");
@@ -24,6 +23,13 @@ class V2rayConfigController extends Controller
             $config = MarzbanUtil::getConfig($config);
 
         } catch (MarzbanException $e) {
+
+            if ($e->getCode() == MarzbanException::CONFIG_NOT_FOUND) {
+                return successJsonResource(new V2rayConfigResource($config), $request);
+            }
+            return error500Res();
+
+        } catch (\Exception $e) {
 
             return error500Res();
         }
