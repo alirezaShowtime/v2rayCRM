@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -15,6 +16,7 @@ class User extends Authenticatable
         'username',
         'is_blocked',
         'password',
+        'uuid',
     ];
 
     protected $hidden = [
@@ -24,4 +26,13 @@ class User extends Authenticatable
     protected $casts = [
         'password' => 'hashed',
     ];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        self::creating(function ($q) {
+            $q->uuid = $q->uuid ?? Str::uuid();
+        });
+    }
 }
