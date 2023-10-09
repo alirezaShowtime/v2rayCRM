@@ -3,12 +3,47 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UserRegisterRequest;
 use App\Http\Resources\Admin\UsersResource;
 use App\Models\User;
+use App\Utils\JWTUtil;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+//    public function register(Request $request)
+    public function register(UserRegisterRequest $request)
+    {
+
+
+
+        try {
+
+            $user = User::create([
+                'name' => $request->name,
+                'username' => $request->username,
+                'password' => $request->password,
+                'phone' => $request->phone,
+            ]);
+
+            return successRes([
+                'token' => [
+                    'access' => JWTUtil::generateForUser($user),
+                    'refresh' => JWTUtil::generateForUser($user, JWTUtil::getRefreshTokenLifetime())
+                ],
+            ]);
+
+        } catch (UniqueConstraintViolationException $e) {
+
+            return errorRes(409, "کاربری با این مشخصات ثبت نام کرده است.");
+
+        } catch (\Exception $e) {
+
+            return error500Res();
+        }
+
+    }
 
     public function getAll(Request $request)
     {

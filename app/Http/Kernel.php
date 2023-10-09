@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\JWTAuthenticate;
+use App\Http\Middleware\SetAcceptJsonHeader;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -42,6 +43,7 @@ class Kernel extends HttpKernel
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class . ':api',
+            SetAcceptJsonHeader::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
