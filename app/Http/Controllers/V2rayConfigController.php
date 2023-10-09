@@ -7,6 +7,7 @@ use App\Http\Resources\V2rayConfigResource;
 use App\Models\V2rayConfig;
 use App\Utils\MarzbanUtil;
 use Illuminate\Http\Request;
+use Mockery\Exception;
 
 class V2rayConfigController extends Controller
 {
@@ -28,6 +29,20 @@ class V2rayConfigController extends Controller
         }
 
         return successJsonResource(new V2rayConfigResource($config), $request);
+
+    }
+
+    public function getAll(Request $request)
+    {
+        try {
+
+            $configs = MarzbanUtil::getConfigs($request->user);
+
+        } catch (Exception $e) {
+            return error500Res();
+        }
+
+        return successJsonResource(V2rayConfigResource::collection($configs), $request);
 
     }
 
