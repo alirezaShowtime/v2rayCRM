@@ -73,11 +73,11 @@ class MarzbanUtil
         ]);
 
         if ($res->failed()) {
-            throw new MarzbanException("login is not successful",MarzbanException::LOGIN_FAILED);
+            throw new MarzbanException("login is not successful", MarzbanException::LOGIN_FAILED);
         }
 
         if (!Settings::setMarzbanAccessToken($res->json("access_token"))) {
-            throw new MarzbanException("We can not save access token in database",MarzbanException::SAVE_TOKEN_FAILED);
+            throw new MarzbanException("We can not save access token in database", MarzbanException::SAVE_TOKEN_FAILED);
         }
 
     }
@@ -109,13 +109,13 @@ class MarzbanUtil
 
         switch ($res->status()) {
             case 409:
-                throw new MarzbanException("the config was created with id = $v2rayConfig->id",MarzbanException::CONFIG_ALREADY_ADDED);
+                throw new MarzbanException("the config was created with id = $v2rayConfig->id", MarzbanException::CONFIG_ALREADY_ADDED);
             case 403:
                 self::login();
                 self::addConfig($v2rayConfig);
         }
 
-        if (!$res->ok()) throw new MarzbanException("we could not enable this config",MarzbanException::CREATE_CONFIG_FAILED);
+        if (!$res->ok()) throw new MarzbanException("we could not enable this config", MarzbanException::CREATE_CONFIG_FAILED);
 
         $exp = $res->json("expire");
 
@@ -136,7 +136,7 @@ class MarzbanUtil
             $v2rayConfig = is_int($v2rayConfig) ? V2rayConfig::findOrFail($v2rayConfig) : $v2rayConfig;
 
         } catch (\Exception $e) {
-            throw new MarzbanException("v2rayConfig not found",MarzbanException::CONFIG_NOT_FOUND);
+            throw new MarzbanException("v2rayConfig not found", MarzbanException::CONFIG_NOT_FOUND);
         }
 
         if ($v2rayConfig->marzban_config_username == null) {
@@ -147,7 +147,7 @@ class MarzbanUtil
 
         switch ($res->status()) {
             case 404:
-                throw new MarzbanException("config not found",MarzbanException::CONFIG_NOT_FOUND);
+                throw new MarzbanException("config not found", MarzbanException::CONFIG_NOT_FOUND);
             case 403:
                 self::login();
                 self::getConfig($v2rayConfig);
@@ -174,7 +174,8 @@ class MarzbanUtil
 
         foreach ($res->json("users") as $config) {
 
-            if (preg_match("/\[id:(\d+)\]/", $config["username"], $matched) === false) {
+
+            if (preg_match("/(\d+)ID_/", $config["username"], $matched) === false) {
                 continue;
             }
             $marzbarnUsers[$matched->group(1)] = $config;
