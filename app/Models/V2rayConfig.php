@@ -18,6 +18,27 @@ class V2rayConfig extends Model
         "price",
         "user_id",
         "admin_id",
+        'marzban_config_username'
     ];
+
+    public function setConfig(array $config)
+    {
+
+        $this->config_data = [
+            "expire" => $config["expire"],
+            "used_traffic" => $config["used_traffic"],
+            "links" => $config["links"],
+        ];
+    }
+
+    public function getDaysTimestampAttribute()
+    {
+        return $this->days * 24 * 60 * 60;
+    }
+
+    public function getSizeBytesAttribute()
+    {
+        return $this->size * 1073741824;
+    }
 
 }

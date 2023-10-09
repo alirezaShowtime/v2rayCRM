@@ -1,0 +1,185 @@
+<?php
+
+namespace App\Utils;
+
+use App\Exceptions\MarzbanException;
+use App\Models\Settings;
+use App\Models\User;
+use App\Models\V2rayConfig;
+use Illuminate\Support\Facades\Http;
+
+class MarzbanUtil
+{
+
+    public const BASE_API_URL = "";
+
+    private static function generateConfigUsername(V2rayConfig $v2rayConfig)
+    {
+
+        $name = $v2rayConfig->user->name;
+        $uuid = $v2rayConfig->user->uuid;
+        $id = $v2rayConfig->id;
+
+        return "[config:$id][$name][$uuid]";
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function getAccessToken(): string
+    {
+        return Settings::getMarzbanAccessToken();
+    }
+
+    protected static function defaultHeader(): array
+    {
+        try {
+
+            return [
+                "authentication" => "Bearer " . self::getAccessToken(),
+                "content-type" => "application/json",
+            ];
+
+        } catch (\Exception $e) {
+            self::login();
+            return self::defaultHeader();
+        }
+    }
+
+    private static function getUrl(string $url): string
+    {
+        $url = str_starts_with('/', $url) ? $url : "/" . $url;
+
+        return self::BASE_API_URL . $url;
+    }
+
+    public static function login()
+    {
+
+        $username = env('MARZBAN_ADMIN_USERNAME', "");
+        $password = env("MARZBAN_ADMIN_PASSWORD", "");
+
+        if (empty($username)) {
+            throw new \Exception("MARZBAN_ADMIN_USERNAME environment variable undefined");
+        }
+
+        if (empty($password)) {
+            throw new \Exception("MARZBAN_ADMIN_PASSWORD environment variable undefined");
+        }
+
+        $res = Http::withHeaders(self::defaultHeader())->post(self::getUrl('admin/token'), [
+            "username" => $username,
+            "password" => $password,
+        ]);
+
+        if ($res->failed()) {
+            throw new MarzbanException("login is not successful");
+        }
+
+        if (!Settings::setMarzbanAccessToken($res->json("access_token"))) {
+            throw new MarzbanException("We can not save access token in database");
+        }
+
+    }
+
+    public static function addConfig(V2rayConfig $v2rayConfig): V2rayConfig|false
+    {
+        $v2rayConfig->marzban_config_username = self::generateConfigUsername($v2rayConfig);
+        $v2rayConfig->enabled_at = now();
+
+        $body = [
+            "status" => "active",
+            "username" => $v2rayConfig->marzban_config_username,
+            "data_limit" => $v2rayConfig->sizeBytes,
+            "data_limit_reset_strategy" => "no_reset",
+            "expire" => $v2rayConfig->enabled_at->timestamp . $v2rayConfig->daysTimestamp,
+            "inbounds" => [
+                "vless" => [
+                    "VLESS GRPC REALITY",
+                ],
+            ],
+            "proxies" => [
+                "vless" => [
+                    "flow" => "",
+                ],
+            ],
+        ];
+
+        $res = Http::withHeaders(self::defaultHeader())->post(self::getUrl('user'), $body);
+
+        switch ($res->status()) {
+            case 409:
+                throw new \Exception("the config was created with id = $v2rayConfig->id");
+            case 403:
+                self::login();
+                self::addConfig($v2rayConfig);
+        }
+
+        if (!$res->ok()) return false;
+
+        $v2rayConfig->setConfig($res->json());
+
+        return $v2rayConfig;
+    }
+
+    public static function getConfig(V2rayConfig|int $v2rayConfig): V2rayConfig
+    {
+
+        try {
+
+            $v2rayConfig = is_int($v2rayConfig) ? V2rayConfig::findOrFail($v2rayConfig) : $v2rayConfig;
+
+        } catch (\Exception $e) {
+            throw new MarzbanException("v2rayConfig not found");
+        }
+
+        if ($v2rayConfig->marzban_config_username == null) {
+            return $v2rayConfig;
+        }
+
+        $res = Http::withHeaders(self::defaultHeader())->get(self::getUrl("user/$v2rayConfig->marzban_config_username"));
+
+        switch ($res->status()) {
+            case 404:
+                throw new MarzbanException("config not found");
+            case 403:
+                self::login();
+                self::getConfig($v2rayConfig);
+                break;
+        }
+
+        $v2rayConfig->setConfig($res->json());
+
+        return $v2rayConfig;
+    }
+
+    public static function getConfigs(User|int $user): array
+    {
+        $user = is_int($user) ? User::findOrFail($user) : $user;
+
+        $res = Http::withHeaders(self::defaultHeader())->get(self::getUrl("users?username=$user->uuid"));
+
+        if ($res->status() == 403) {
+            self::login();
+            self::getConfigs($user);
+        }
+
+        $marzbarnUsers = [];
+
+        foreach ($res->json("users") as $config) {
+
+            if (preg_match("/\[config:(\d+)\]/", $config["username"], $matched) === false) {
+                continue;
+            }
+            $marzbarnUsers[$matched->group(1)] = $config;
+        }
+
+        $v2rayConfigs = V2rayConfig::whereIn('id', array_keys($marzbarnUsers))->get();
+
+        foreach ($v2rayConfigs as $v2rayConfig) {
+            $v2rayConfig->setConfig($marzbarnUsers[$v2rayConfig->id]);
+        }
+
+        return $v2rayConfigs;
+    }
+}

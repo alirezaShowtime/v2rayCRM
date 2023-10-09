@@ -15,6 +15,7 @@ return new class extends Migration {
         Schema::create('v2ray_configs', function (Blueprint $table) {
             $table->id();
             $table->string("remark")->unique();
+            $table->text("marzban_config_username")->nullable();
             $table->unsignedInteger("size")->nullable();
             $table->unsignedInteger("days");
             $table->unsignedBigInteger("price");
