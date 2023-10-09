@@ -16,7 +16,7 @@ class JWTAuthenticate
         $token = $request->bearerToken();
 
         if ($token == null) {
-            return \response()->setStatusCode(402);
+            return \response(null,402);
         }
 
         try {
@@ -33,7 +33,6 @@ class JWTAuthenticate
 
         } catch (\Exception $e) {
 
-            dd($e);
             return \response(null, 402);
         }
 
