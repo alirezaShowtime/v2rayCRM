@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Admin;
 use Illuminate\Console\Command;
+use Illuminate\Database\UniqueConstraintViolationException;
 
 class CreateAdmin extends Command
 {
@@ -30,7 +31,7 @@ class CreateAdmin extends Command
                 "username" => $username,
                 "password" => $password,
             ]);
-        } catch (\Exception $e) {
+        } catch (UniqueConstraintViolationException $e) {
 
             $this->info("\nAdmin already is created");
             return;
