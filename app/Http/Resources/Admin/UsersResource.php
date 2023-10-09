@@ -16,7 +16,7 @@ class UsersResource extends JsonResource
             'username' => $this->username,
             'phone' => $this->phone,
             'is_blocked' => $this->is_blocked,
-            'joined_at' => $this->created_at->timestamps
+            'joined_at' => $this->created_at->timestamp
         ];
     }
 }
