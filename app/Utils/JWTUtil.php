@@ -21,12 +21,12 @@ class JWTUtil
 
     public static function generateForUser(User $user, $lifetime = null)
     {
-        return self::generate(['userId' => $user->id], $lifetime);
+        return self::generate(['userUUID' => $user->uuid], $lifetime);
     }
 
     public static function generateForAdmin(Admin $admin, $lifetime = null)
     {
-        return self::generate(['adminId' => $admin->id], $lifetime);
+        return self::generate(['adminUUID' => $admin->uuid], $lifetime);
     }
 
     public static function decode($token): array
@@ -38,16 +38,16 @@ class JWTUtil
 
     public static function decodeForUser($token): User
     {
-        $userId = self::decode($token)['userId'];
+        $userUUID = self::decode($token)['userUUID'];
 
-        return User::findOrFail($userId);
+        return User::findOrFail($userUUID);
     }
 
     public static function decodeForAdmin($token): Admin
     {
-        $adminId = self::decode($token)['userId'];
+        $adminUUID = self::decode($token)['adminUUID'];
 
-        return Admin::findOrFail($adminId);
+        return Admin::findOrFail($adminUUID);
     }
 
     private static function getKey(): string
