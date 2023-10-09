@@ -21,7 +21,7 @@ class DateTimeUtil
             "mics" => 0.000001,
         ];
 
-        if (preg_match("/\d+", $s, $matched) === false) throw new \ValueError($formatError);
+        if (preg_match("/\d+/", $s, $matched) === false) throw new \ValueError($formatError);
 
         $num = $matched[0];
 

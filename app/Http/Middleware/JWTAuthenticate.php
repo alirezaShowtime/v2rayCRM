@@ -13,13 +13,11 @@ class JWTAuthenticate
     {
         $this->isValidFor($for);
 
-        $bearerToken = $request->header('Authenticate');
+        $token = $request->bearerToken();
 
-        if ($bearerToken == null || !str_starts_with('bearer ', $bearerToken)) {
+        if ($token == null) {
             return \response()->setStatusCode(402);
         }
-
-        $token = str_replace('bearer ', '', $bearerToken);
 
         try {
 
@@ -35,7 +33,8 @@ class JWTAuthenticate
 
         } catch (\Exception $e) {
 
-            return \response()->setStatusCode(402);
+            dd($e);
+            return \response(null, 402);
         }
 
         return $next($request);

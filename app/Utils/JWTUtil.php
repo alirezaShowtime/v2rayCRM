@@ -33,21 +33,21 @@ class JWTUtil
     {
         $decoded = JWT::decode($token, new Key(self::getKey(), self::ALG));
 
-        return json_decode(json_encode($decoded));
+        return json_decode(json_encode($decoded), true);
     }
 
     public static function decodeForUser($token): User
     {
         $userUUID = self::decode($token)['userUUID'];
 
-        return User::findOrFail($userUUID);
+        return User::where("uuid", $userUUID)->firstOrFail();
     }
 
     public static function decodeForAdmin($token): Admin
     {
         $adminUUID = self::decode($token)['adminUUID'];
 
-        return Admin::findOrFail($adminUUID);
+        return Admin::where("uuid", $adminUUID)->firstOrFail();
     }
 
     private static function getKey(): string

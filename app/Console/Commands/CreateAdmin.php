@@ -25,10 +25,16 @@ class CreateAdmin extends Command
             return;
         }
 
-        $admin = Admin::create([
-            "username" => $username,
-            "password" => $password,
-        ]);
+        try {
+            $admin = Admin::create([
+                "username" => $username,
+                "password" => $password,
+            ]);
+        } catch (\Exception $e) {
+
+            $this->info("\nAdmin already is created");
+            return;
+        }
 
         $this->info($admin->makeVisible("password")->toJson(JSON_PRETTY_PRINT));
 
