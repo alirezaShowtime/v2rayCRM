@@ -5,7 +5,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\V2rayConfigController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('jwt:admin,refresh')->get('refresh-token', [AuthController::class, 'refreshToken']);
+Route::middleware('jwt:admin,refresh')->get('auth/refresh-token', [AuthController::class, 'refreshToken']);
 
 Route::post('auth/login', [AuthController::class, 'login']);
 
