@@ -22,6 +22,10 @@ class AuthController extends Controller
             return errorRes(400, "نام کاربری یا رمز عبور اشتباه است.");
         }
 
+        if ($user->blocked_at != null) {
+            return errorRes(403, "شما مسدود شده اید.");
+        }
+
         return successRes([
             "token" => [
                 "access" => JWTUtil::generateForUser($user),
