@@ -49,7 +49,15 @@ class UserController extends Controller
     {
 
         try {
+
             $user = User::find($id);
+
+            if ($user == null) {
+
+                return errorRes(404, "کاربری با این شناسه یافت نشد.");
+
+            }
+
         } catch (\Exception $e) {
             return error500Res();
         }
