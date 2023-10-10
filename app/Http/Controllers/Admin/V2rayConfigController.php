@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\V2rayConfigCreateRequest;
 use App\Http\Resources\V2rayConfigResource;
 use App\Models\User;
 use App\Models\V2rayConfig;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 
 class V2rayConfigController extends Controller
@@ -31,9 +32,15 @@ class V2rayConfigController extends Controller
 
             return successJsonResource(new V2rayConfigResource($config), $request);
 
-        } catch (\Exception $e) {
+        } catch (UniqueConstraintViolationException  $e) {
+
+            if ($e->getCode() == 23000) {
+                return errorRes(409, "کانفیگی با چنین مشخصات ایجاد شده است.");
+            }
             return error500Res();
 
+        } catch (\Exception $e) {
+            return error500Res();
         }
 
     }
