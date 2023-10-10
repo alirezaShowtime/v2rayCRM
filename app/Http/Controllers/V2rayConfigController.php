@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\MarzbanException;
 use App\Http\Resources\V2rayConfigResource;
+use App\Rules\InQueryRule;
 use App\Utils\MarzbanUtil;
 use Illuminate\Http\Request;
 use Mockery\Exception;
@@ -40,6 +41,13 @@ class V2rayConfigController extends Controller
 
     public function getAll(Request $request)
     {
+        $request->validate([
+            'filter' => [new InQueryRule, 'in:active,disabled,expired'],
+            'sort' => [new InQueryRule, 'in:desc,asc'],
+            'page' => [new InQueryRule, 'int', 'min:1',],
+            'pageSize' => [new InQueryRule, 'int', 'min:1',],
+        ]);
+
         $page = $request->query("page", 1);
         $pageSize = $request->query("pageSize", 30);
         $sort = $request->query("sort", "asc");

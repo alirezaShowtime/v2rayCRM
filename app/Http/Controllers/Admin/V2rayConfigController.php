@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\V2rayConfigCreateRequest;
 use App\Http\Resources\V2rayConfigResource;
 use App\Models\User;
 use App\Models\V2rayConfig;
+use App\Rules\InQueryRule;
 use App\Utils\MarzbanUtil;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
@@ -49,6 +50,13 @@ class V2rayConfigController extends Controller
 
     public function getAll(Request $request, int $id)
     {
+        $request->validate([
+            'filter' => [new InQueryRule, 'in:active,disabled,expired'],
+            'sort' => [new InQueryRule, 'in:desc,asc'],
+            'page' => [new InQueryRule, 'int', 'min:1',],
+            'pageSize' => [new InQueryRule, 'int', 'min:1',],
+        ]);
+
         $user = User::find($id);
 
         if ($user == null) {
@@ -59,14 +67,6 @@ class V2rayConfigController extends Controller
         $filter = $request->query("filter");
         $page = $request->query("page", 1);
         $pageSize = $request->query("pageSize", 30);
-
-        if (!in_array($sort, ["desc", "asc"])) {
-            return errorRes(400, "the sort query param must be 'desc' or 'acs'");
-        }
-
-        if (!in_array($filter, [null, "active", "disabled", 'expired'])) {
-            return errorRes(400, "the filter query param must be 'all' or 'disabled' or 'enabled'");
-        }
 
         $offset = ($page - 1) * $pageSize;
 
