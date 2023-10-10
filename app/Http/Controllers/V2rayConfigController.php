@@ -43,6 +43,7 @@ class V2rayConfigController extends Controller
         $page = $request->query("page", 1);
         $pageSize = $request->query("pageSize", 30);
         $sort = $request->query("sort", "asc");
+        $filter = $request->query("filter");
 
         $offset = ($page - 1) * $pageSize;
 
@@ -53,6 +54,7 @@ class V2rayConfigController extends Controller
                 offset: $offset,
                 limit: $pageSize,
                 sort: $sort,
+                status: $filter,
             );
 
         } catch (Exception $e) {

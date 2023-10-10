@@ -30,6 +30,7 @@ class V2rayConfig extends Model
     {
 
         $this->config_data = [
+            "status" => $config["status"],
             "expire" => $config["expire"],
             "used_traffic" => $config["used_traffic"],
             "links" => $config["links"],

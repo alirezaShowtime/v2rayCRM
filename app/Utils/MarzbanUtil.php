@@ -159,7 +159,13 @@ class MarzbanUtil
         return $v2rayConfig;
     }
 
-    public static function getConfigs(User|int $user, $offset = null, $limit = null, $sort = "asc"): array
+    public static function getConfigs(
+        User|int    $user,
+        int|null    $offset = null,
+        int|null    $limit = null,
+        string      $sort = "asc",
+        string|null $status = null,
+    ): array
     {
         $user = is_int($user) ? User::findOrFail($user) : $user;
 
@@ -168,6 +174,7 @@ class MarzbanUtil
             "limit" => $limit,
             "sort" => $sort == "asc" ? "username" : "-username",
             "username" => $user->username,
+            "status" => $status,
         ];
 
         $query = "";
@@ -200,13 +207,23 @@ class MarzbanUtil
             $marzbarnUsers[$matched[1]] = $config;
         }
 
-        $v2rayConfigs = V2rayConfig::where('user_id', $user->id)->orderBy("id", "asc");
+        $v2rayConfigs = V2rayConfig::where('user_id', $user->id)->orderBy("id", $sort);
 
         if ($offset != null) {
             $v2rayConfigs->skip($offset);
         }
         if ($limit != null) {
             $v2rayConfigs->limit($limit);
+        }
+        switch ($status) {
+            case "active":
+                $v2rayConfigs->whereNot('enabled_at', null);
+                break;
+            case "disabled" :
+                $v2rayConfigs->where('enabled_at', null);
+                break;
+            case "expired":
+                $v2rayConfigs->whereDate('expired_at', "<", now());
         }
 
         $v2rayConfigs = $v2rayConfigs->get();
