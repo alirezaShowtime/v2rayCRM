@@ -17,8 +17,6 @@ class UserController extends Controller
 
     public function register(UserRegisterRequest $request)
     {
-
-
         try {
 
             $user = User::create([
@@ -39,28 +37,16 @@ class UserController extends Controller
 
             return errorRes(409, "کاربری با این مشخصات ثبت نام کرده است.");
 
-        } catch (\Exception $e) {
-
-            return error500Res();
         }
-
     }
 
     public function getUser(Request $request, int $id)
     {
 
-        try {
+        $user = User::find($id);
 
-            $user = User::find($id);
-
-            if ($user == null) {
-
-                return errorRes(404, "کاربری با این شناسه یافت نشد.");
-
-            }
-
-        } catch (\Exception $e) {
-            return error500Res();
+        if ($user == null) {
+            return errorRes(404, "کاربری با این شناسه یافت نشد.");
         }
 
         return successJsonResource(new UserResource($user), $request);
@@ -111,18 +97,11 @@ class UserController extends Controller
             return successRes();
         }
 
-        try {
+        $user->blocked_at = $request->is_block ? now() : null;
 
-            $user->blocked_at = $request->is_block ? now() : null;
+        $user->saveOrFail();
 
-            $user->saveOrFail();
-
-            return successRes();
-
-        } catch (\Exception $e) {
-
-            return error500Res();
-        }
+        return successRes();
     }
 
 }

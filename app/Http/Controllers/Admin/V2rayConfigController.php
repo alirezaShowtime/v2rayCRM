@@ -11,7 +11,6 @@ use App\Rules\InQueryRule;
 use App\Utils\MarzbanUtil;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
-use Mockery\Exception;
 
 class V2rayConfigController extends Controller
 {
@@ -40,10 +39,8 @@ class V2rayConfigController extends Controller
             if ($e->getCode() == 23000) {
                 return errorRes(409, "کانفیگی با چنین مشخصات ایجاد شده است.");
             }
-            return error500Res();
 
-        } catch (\Exception $e) {
-            return error500Res();
+            throw $e;
         }
 
     }
@@ -70,19 +67,13 @@ class V2rayConfigController extends Controller
 
         $offset = ($page - 1) * $pageSize;
 
-        try {
-
-            $configs = MarzbanUtil::getConfigs(
-                user: $user,
-                offset: $offset,
-                limit: $pageSize,
-                sort: $sort,
-                status: $filter,
-            );
-
-        } catch (Exception $e) {
-            return error500Res();
-        }
+        $configs = MarzbanUtil::getConfigs(
+            user: $user,
+            offset: $offset,
+            limit: $pageSize,
+            sort: $sort,
+            status: $filter,
+        );
 
         return successJsonResource(V2rayConfigResource::collection($configs), $request);
     }

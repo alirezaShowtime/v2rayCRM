@@ -7,7 +7,6 @@ use App\Http\Resources\V2rayConfigResource;
 use App\Rules\InQueryRule;
 use App\Utils\MarzbanUtil;
 use Illuminate\Http\Request;
-use Mockery\Exception;
 
 class V2rayConfigController extends Controller
 {
@@ -28,11 +27,7 @@ class V2rayConfigController extends Controller
             if ($e->getCode() == MarzbanException::CONFIG_NOT_FOUND) {
                 return successJsonResource(new V2rayConfigResource($config), $request);
             }
-            return error500Res();
-
-        } catch (\Exception $e) {
-
-            return error500Res();
+            throw $e;
         }
 
         return successJsonResource(new V2rayConfigResource($config), $request);
@@ -55,22 +50,15 @@ class V2rayConfigController extends Controller
 
         $offset = ($page - 1) * $pageSize;
 
-        try {
-
-            $configs = MarzbanUtil::getConfigs(
-                user: $request->user,
-                offset: $offset,
-                limit: $pageSize,
-                sort: $sort,
-                status: $filter,
-            );
-
-        } catch (Exception $e) {
-            return error500Res();
-        }
+        $configs = MarzbanUtil::getConfigs(
+            user: $request->user,
+            offset: $offset,
+            limit: $pageSize,
+            sort: $sort,
+            status: $filter,
+        );
 
         return successJsonResource(V2rayConfigResource::collection($configs), $request);
-
     }
 
     public function enable(Request $request, int $id)
@@ -95,12 +83,10 @@ class V2rayConfigController extends Controller
             if ($e->getCode() == MarzbanException::CONFIG_ALREADY_ADDED) {
                 return errorRes(409, "کانفیگ قبلا فعال شده است.");
             }
-            return error500Res();
 
-        } catch (\Exception $e) {
-            return error500Res();
+            throw $e;
         }
-        return successJsonResource(new V2rayConfigResource($config), $request);
 
+        return successJsonResource(new V2rayConfigResource($config), $request);
     }
 }
