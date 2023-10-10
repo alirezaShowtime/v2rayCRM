@@ -159,16 +159,35 @@ class MarzbanUtil
         return $v2rayConfig;
     }
 
-    public static function getConfigs(User|int $user): array
+    public static function getConfigs(User|int $user, $offset = null, $limit = null, $sort = "asc"): array
     {
         $user = is_int($user) ? User::findOrFail($user) : $user;
 
-        $res = Http::withHeaders(self::defaultHeader())->get(self::getUrl("users?username=$user->uuid"));
+        $queryParams = [
+            "offset" => $offset,
+            "limit" => $limit,
+            "sort" => $sort == "asc" ? "username" : "-username",
+            "username" => $user->username,
+        ];
+
+        $query = "";
+
+        foreach ($queryParams as $k => $v) {
+
+            if ($v === null) continue;
+            $query .= "&$k=$v";
+        }
+
+        $query = substr_replace($query, "?", 0, 1);
+
+        $res = Http::withHeaders(self::defaultHeader())->get(self::getUrl("users$query"));
 
         if ($res->status() == 403) {
             self::login();
             self::getConfigs($user);
         }
+
+        if (!$res->ok()) throw new MarzbanException("get configs is failed", MarzbanException::GET_CONFIGS_FAILED);
 
         $marzbarnUsers = [];
 
@@ -178,10 +197,19 @@ class MarzbanUtil
             if (preg_match("/(\d+)ID_/", $config["username"], $matched) === false) {
                 continue;
             }
-            $marzbarnUsers[$matched->group(1)] = $config;
+            $marzbarnUsers[$matched[1]] = $config;
         }
 
-        $v2rayConfigs = V2rayConfig::where('user_id', $user->id)->get();
+        $v2rayConfigs = V2rayConfig::where('user_id', $user->id)->orderBy("id", "asc");
+
+        if ($offset != null) {
+            $v2rayConfigs->skip($offset);
+        }
+        if ($limit != null) {
+            $v2rayConfigs->limit($limit);
+        }
+
+        $v2rayConfigs = $v2rayConfigs->get();
 
         foreach ($v2rayConfigs as $v2rayConfig) {
             if (!array_key_exists($v2rayConfig->id, $marzbarnUsers)) continue;
