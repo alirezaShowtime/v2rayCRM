@@ -13,6 +13,7 @@ Route::middleware('jwt:admin')->post('user/register', [UserController::class, 'r
 
 Route::middleware('jwt:admin')->get('users', [UserController::class, 'getAll']);
 Route::middleware('jwt:admin')->get('user/{id}', [UserController::class, 'getUser']);
+Route::middleware('jwt:admin')->post('user/{id}/block', [UserController::class, 'block']);
 
 Route::middleware('jwt:admin')->post('user/{id}/config/', [V2rayConfigController::class, 'create']);
 Route::middleware('jwt:admin')->get('user/{id}/configs', [V2rayConfigController::class, 'getAll']);

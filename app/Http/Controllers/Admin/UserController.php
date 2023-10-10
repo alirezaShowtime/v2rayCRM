@@ -78,4 +78,35 @@ class UserController extends Controller
 
         return successJsonResource(UsersResource::collection($users), $request);
     }
+
+    public function block(Request $request, int $id)
+    {
+        $request->validate([
+            "is_block" => "required|bool",
+        ], []);
+
+        $user = User::find($id);
+
+        if ($user == null) {
+            return errorRes(404, "کاربری با این شناسه یافت نشد.");
+        }
+
+        if ($request->is_block == ($user->blocked_at != null)) {
+            return successRes();
+        }
+
+        try {
+
+            $user->blocked_at = $request->is_block ? now() : null;
+
+            $user->saveOrFail();
+
+            return successRes();
+
+        } catch (\Exception $e) {
+
+            return error500Res();
+        }
+    }
+
 }
