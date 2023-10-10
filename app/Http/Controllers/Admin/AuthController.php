@@ -16,14 +16,14 @@ class AuthController extends Controller
         $request->validate([
             "username" => "required",
             "password" => "required",
-        ],[], [
+        ], [], [
             "username" => "نام کاربری",
             "password" => "رمز عبور",
         ]);
 
         $admin = Admin::where("username", $request->username)->first();
 
-        if ($admin == null || !Hash::check($admin->password, $request->password)) {
+        if ($admin == null || !Hash::check($request->password, $admin->password)) {
             return errorRes(404, "نام کاربری یا رمز عبور اشتباه است.");
         }
 
