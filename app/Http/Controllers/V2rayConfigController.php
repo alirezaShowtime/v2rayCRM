@@ -40,9 +40,20 @@ class V2rayConfigController extends Controller
 
     public function getAll(Request $request)
     {
+        $page = $request->query("page", 1);
+        $pageSize = $request->query("pageSize", 30);
+        $sort = $request->query("sort", "asc");
+
+        $offset = ($page - 1) * $pageSize;
+
         try {
 
-            $configs = MarzbanUtil::getConfigs($request->user);
+            $configs = MarzbanUtil::getConfigs(
+                user: $request->user,
+                offset: $offset,
+                limit: $pageSize,
+                sort: $sort,
+            );
 
         } catch (Exception $e) {
             return error500Res();
