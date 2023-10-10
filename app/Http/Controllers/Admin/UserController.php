@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\UserRegisterRequest;
 use App\Http\Resources\Admin\UserResource;
 use App\Http\Resources\Admin\UsersResource;
 use App\Models\User;
+use App\Rules\InQueryRule;
 use App\Utils\JWTUtil;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
@@ -67,14 +68,29 @@ class UserController extends Controller
 
     public function getAll(Request $request)
     {
+        $request->validate([
+            'blocked' => [new InQueryRule, 'bool'],
+            'sort' => [new InQueryRule, 'in:desc,asc'],
+            'page' => [new InQueryRule, 'int', 'min:1',],
+            'pageSize' => [new InQueryRule, 'int', 'min:1',],
+        ]);
 
         $sort = $request->query('sort', 'desc');
+        $pageSize = $request->query('pageSize', 30);
+        $page = $request->query('page', 1);
+        $blocked = $request->query('blocked');
 
-        if (!in_array($sort, ["asc", "desc"])) {
-            return errorRes(400, "مقدار sort باید asc یا desc باشد.");
+        $query = User::query()->myPagination($page, $pageSize)->orderBy('id', $sort);
+
+        if ($blocked !== null) {
+            if ($blocked) {
+                $query->whereNot('blocked_at', null);
+            } else {
+                $query->where('blocked_at', null);
+            }
         }
 
-        $users = User::query()->orderBy('id', $sort)->get();
+        $users = $query->get();
 
         return successJsonResource(UsersResource::collection($users), $request);
     }
