@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('name');
             $table->string('phone')->unique();
-            $table->string("username")->unique();
+            $table->string("username", 22)->unique();
             $table->string('password');
             $table->timestamp("blocked_at")->nullable();
             $table->uuid();

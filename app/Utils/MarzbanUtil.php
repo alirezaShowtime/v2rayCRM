@@ -17,7 +17,7 @@ class MarzbanUtil
     private static function generateConfigUsername(V2rayConfig $v2rayConfig)
     {
 
-        $name = $v2rayConfig->user->name;
+        $name = $v2rayConfig->user->username;
         $id = $v2rayConfig->id;
 
         return $id . "ID_$name";
