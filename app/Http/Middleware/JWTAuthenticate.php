@@ -16,7 +16,7 @@ class JWTAuthenticate
         $token = $request->bearerToken();
 
         if ($token == null) {
-            return \response(null, 402);
+            return \response(null, 401);
         }
 
         try {
@@ -41,7 +41,7 @@ class JWTAuthenticate
 
         } catch (\Exception $e) {
 
-            return \response(null, 402);
+            return \response(null, 401);
         }
 
         return $next($request);
