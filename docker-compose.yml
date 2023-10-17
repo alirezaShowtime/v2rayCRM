@@ -1,0 +1,60 @@
+services:
+  
+  v2raycrm:
+    build:
+      context: .
+      # context: ./v2rayCRM
+      dockerfile: Dockerfile
+    image: v2raycrm
+    container_name: v2raycrm
+    restart: unless-stopped
+    volumes:
+      - ./storage:/var/www/html/storage
+    networks:
+      - app-network
+    ports:
+      - 80:80
+
+
+  database:
+    # build:
+      # context: ./db
+      # dockerfile: Dockerfile
+    image: mysql
+    restart: always
+    hostname: "mysql"
+    container_name: mysql
+    ports:
+      - "8106:3306"
+    environment:
+      - TZ=Asia/Tehran
+      - MYSQL_ROOT_PASSWORD=u3%^euYEYEYheaelmGP6W3ge2
+      - MYSQL_DATABASE=first
+      - MYSQL_USER=myUser
+      - MYSQL_PASSWORD=u3%^euYEYEYheaelmGP6W3ge2
+    #      MYSQL_ROOT_HOST: "%"
+    volumes:
+      - /var/lib/mysql:/var/lib/mysql
+    networks:
+      - app-network
+
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: always
+    links:
+      - mysql:db
+    ports:
+      - 8080:80
+    environment:
+      - MYSQL_USER=userdev
+      - MYSQL_PASSWORD=u3%^euYEYEYheaelmGP6W3ge2
+      - MYSQL_ROOT_PASSWORD=u3%^euYEYEYheaelmGP6W3ge2
+      - TZ=Asia/Tehran
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
