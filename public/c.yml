@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  v2raycrm:
+    build:
+      context: ./v2rayCRM
+      dockerfile: Dockerfile
+    image: v2raycrm
+    container_name: v2raycrm
+    restart: unless-stopped
+    volumes:
+      - ./v2rayCRM:/var/www/html
+    networks:
+      - safaremoon
+    ports:
+      - 80:80
+
+networks:
+  safaremoon:
+    driver: bridge
