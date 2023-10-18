@@ -28,28 +28,24 @@ RUN docker-php-source delete
 
 COPY ./dockerConf/default.conf /etc/apache2/sites-available/000-default.conf
 
+COPY . /var/www/html
+
+RUN rm -rf /var/www/html/dockerConf
+
 RUN mkdir -p /home/$user/.composer && \
     chown -R $user:$user /home/$user
 
 RUN curl --insecure https://getcomposer.org/composer.phar -o /usr/bin/composer && chmod +x /usr/bin/composer
 
-
 WORKDIR /var/www/html
 
-COPY ./composer.json composer.json
-
-COPY ./package.json package.json
+RUN chown -R www-data:www-data /var/www/html
 
 RUN composer install
-
-COPY . .
 
 RUN php artisan key:generate \
     && php artisan storage:link
 
-# RUN mkdir -p /var/www/html/public
-
-RUN chown -R www-data:www-data /var/www/html
+RUN mkdir -p /var/www/html/public
 
 USER $user
-
