@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\V2rayConfigCreateRequest;
 use App\Http\Resources\V2rayConfigResource;
+use App\Models\Inbound;
 use App\Models\User;
 use App\Models\V2rayConfig;
 use App\Rules\InQueryRule;
@@ -78,4 +79,8 @@ class V2rayConfigController extends Controller
         return successJsonResource(V2rayConfigResource::collection($configs), $request);
     }
 
+    public function getInbounds(Request $request)
+    {
+        return Inbound::select(["id", "name", "type"])->groupBy('type')->get();
+    }
 }

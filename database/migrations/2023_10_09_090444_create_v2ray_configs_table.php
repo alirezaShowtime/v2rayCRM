@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->text("marzban_config_username")->nullable();
             $table->unsignedInteger("size")->nullable();
             $table->unsignedInteger("days");
+            $table->unsignedInteger("type");
             $table->unsignedBigInteger("price");
             $table->timestamp("expired_at")->nullable();
             $table->timestamp("enabled_at")->nullable();

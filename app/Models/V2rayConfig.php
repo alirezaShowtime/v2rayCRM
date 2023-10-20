@@ -26,6 +26,10 @@ class V2rayConfig extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function inbounds() {
+        return $this->belongsToMany(Inbound::class);
+    }
+
     public function setConfig(array $config)
     {
 
