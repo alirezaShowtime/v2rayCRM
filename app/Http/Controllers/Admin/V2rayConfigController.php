@@ -33,8 +33,11 @@ class V2rayConfigController extends Controller
                 'admin_id' => request()->admin->id,
             ]);
 
-            return successJsonResource(new V2rayConfigResource($config), $request);
+            $config->inbounds()->detach();
 
+            $config->inbounds()->attach($request->inbounds);
+
+            return successJsonResource(new V2rayConfigResource($config), $request);
         } catch (UniqueConstraintViolationException  $e) {
 
             if ($e->getCode() == 23000) {
@@ -43,7 +46,6 @@ class V2rayConfigController extends Controller
 
             throw $e;
         }
-
     }
 
     public function getAll(Request $request, int $id)

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\V2rayConfig;
 use Illuminate\Foundation\Http\FormRequest;
 
 class V2rayConfigCreateRequest extends FormRequest
@@ -19,6 +20,8 @@ class V2rayConfigCreateRequest extends FormRequest
             'size' => 'nullable|int|min:0',
             'days' => 'required|int:min:1',
             'price' => 'required|int|min:1',
+            'inbounds' => 'required|array',
+            'inbounds.*' => 'required|int',
         ];
     }
 
@@ -29,6 +32,9 @@ class V2rayConfigCreateRequest extends FormRequest
             'size' => 'حجم کانفیگ',
             'days' => 'دوره',
             'price' => 'قیمت',
+            'inbounds' => 'نوع کانفیگ',
+            'inbounds.*' => 'نوع کانفیگ',
+
         ];
     }
 }
