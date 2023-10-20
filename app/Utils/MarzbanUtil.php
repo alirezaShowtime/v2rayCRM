@@ -39,7 +39,6 @@ class MarzbanUtil
                 "Authorization" => "Bearer " . self::getAccessToken(),
                 "content-type" => "application/json",
             ];
-
         } catch (\Exception $e) {
             self::login();
             return self::defaultHeader();
@@ -79,7 +78,6 @@ class MarzbanUtil
         if (!Settings::setMarzbanAccessToken($res->json("access_token"))) {
             throw new MarzbanException("We can not save access token in database", MarzbanException::SAVE_TOKEN_FAILED);
         }
-
     }
 
     public static function addConfig(V2rayConfig $v2rayConfig): V2rayConfig
@@ -87,22 +85,46 @@ class MarzbanUtil
         $v2rayConfig->marzban_config_username = self::generateConfigUsername($v2rayConfig);
         $v2rayConfig->enabled_at = now();
 
+        $inbundsOfConfig = $v2rayConfig->inbounds()->get();
+
+        $inbunds = [];
+        $proxis = [];
+
+        foreach ($inbundsOfConfig as  $inbound) {
+
+            $inbunds[$inbound->type][] = $inbound->name;
+        }
+
+
+        if (in_array("vmess", array_keys($inbunds))) {
+            $proxis[] = ["vmess" => []];
+        }
+        if (in_array("trojan", array_keys($inbunds))) {
+            $proxis[] = ["trojan" => []];
+        }
+        if (in_array("shadowsocks", array_keys($inbunds))) {
+            $proxis[] = [
+                "shadowsocks" => [
+                    "method" => "chacha20-poly1305",
+                ],
+            ];
+        }
+        if (in_array("vless", array_keys($inbunds))) {
+            $proxis[] = [
+                "vless" => [
+                    "flow" => "",
+                ],
+            ];
+        }
+
         $body = [
             "status" => "active",
             "username" => $v2rayConfig->marzban_config_username,
             "data_limit" => $v2rayConfig->sizeBytes,
             "data_limit_reset_strategy" => "no_reset",
             "expire" => $v2rayConfig->enabled_at->timestamp + $v2rayConfig->daysTimestamp,
-            "inbounds" => [
-                "vless" => [
-                    "VLESS GRPC REALITY",
-                ],
-            ],
-            "proxies" => [
-                "vless" => [
-                    "flow" => "",
-                ],
-            ],
+            "inbounds" => $inbunds,
+            "proxies" => $proxis,
         ];
 
         $res = Http::withHeaders(self::defaultHeader())->post(self::getUrl('user'), $body);
@@ -134,7 +156,6 @@ class MarzbanUtil
         try {
 
             $v2rayConfig = is_int($v2rayConfig) ? V2rayConfig::findOrFail($v2rayConfig) : $v2rayConfig;
-
         } catch (\Exception $e) {
             throw new MarzbanException("v2rayConfig not found", MarzbanException::CONFIG_NOT_FOUND);
         }
@@ -165,8 +186,7 @@ class MarzbanUtil
         int|null    $limit = null,
         string      $sort = "asc",
         string|null $status = null,
-    ): array
-    {
+    ): array {
         $user = is_int($user) ? User::findOrFail($user) : $user;
 
         $queryParams = [
@@ -219,7 +239,7 @@ class MarzbanUtil
             case "active":
                 $v2rayConfigs->whereNot('enabled_at', null);
                 break;
-            case "disabled" :
+            case "disabled":
                 $v2rayConfigs->where('enabled_at', null);
                 break;
             case "expired":
