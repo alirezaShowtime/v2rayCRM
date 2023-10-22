@@ -18,3 +18,4 @@ Route::middleware('jwt:admin')->post('user/{id}/block', [UserController::class, 
 Route::middleware('jwt:admin')->get('inbounds', [V2rayConfigController::class, "getInbounds"]);
 Route::middleware('jwt:admin')->post('user/{id}/config/', [V2rayConfigController::class, 'create']);
 Route::middleware('jwt:admin')->get('user/{id}/configs', [V2rayConfigController::class, 'getAll']);
+Route::middleware('jwt:admin')->put('config/{id}/enable', [V2rayConfigController::class, 'enable']);

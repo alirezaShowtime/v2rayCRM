@@ -12,6 +12,7 @@ use App\Rules\InQueryRule;
 use App\Utils\MarzbanUtil;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class V2rayConfigController extends Controller
 {
@@ -23,7 +24,10 @@ class V2rayConfigController extends Controller
             return errorRes(404, "کاربری با این شناسه پیدا نشد.");
         }
 
+        DB::beginTransaction();
+
         try {
+
             $config = V2rayConfig::create([
                 'remark' => $request->remark,
                 'size' => $request->size,
@@ -37,8 +41,12 @@ class V2rayConfigController extends Controller
 
             $config->inbounds()->attach($request->inbounds);
 
+            DB::commit();
+
             return successJsonResource(new V2rayConfigResource($config), $request);
         } catch (UniqueConstraintViolationException  $e) {
+
+            DB::rollBack();
 
             if ($e->getCode() == 23000) {
                 return errorRes(409, "کانفیگی با چنین مشخصات ایجاد شده است.");
@@ -79,6 +87,34 @@ class V2rayConfigController extends Controller
         );
 
         return successJsonResource(V2rayConfigResource::collection($configs), $request);
+    }
+
+    public function enable(Request $request, int $id)
+    {
+        $config = V2rayConfig::find($id);
+
+        if ($config == null) {
+            return errorRes(404, "کانفیگی با این شناسه یافت نشد.");
+        }
+
+        if ($config->enabled_at != null) {
+            return errorRes(409, "کانفیگ قبلا فعال شده است.");
+        }
+
+        try {
+
+            $config = MarzbanUtil::addConfig($config);
+            $config->saveOrFail();
+        } catch (MarzbanException $e) {
+
+            if ($e->getCode() == MarzbanException::CONFIG_ALREADY_ADDED) {
+                return errorRes(409, "کانفیگ قبلا فعال شده است.");
+            }
+
+            throw $e;
+        }
+
+        return successJsonResource(new V2rayConfigResource($config), $request);
     }
 
     public function getInbounds(Request $request)

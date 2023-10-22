@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\Http;
 class MarzbanUtil
 {
 
-    public const BASE_API_URL = "http://moboland.shop:8000/api";
-
     private static function generateConfigUsername(V2rayConfig $v2rayConfig)
     {
 
@@ -47,9 +45,16 @@ class MarzbanUtil
 
     private static function getUrl(string $url): string
     {
-        $url = str_starts_with('/', $url) ? $url : "/" . $url;
 
-        return self::BASE_API_URL . $url;
+        $url = str_starts_with($url, '/') ? $url : "/" . $url;
+
+        $base = env("MARZBAN_URL");
+
+        if (str_ends_with($base, '/')) {
+            return substr($base, 0, -1) . $url;
+        }
+
+        return $base . $url;
     }
 
     public static function login()
@@ -95,25 +100,20 @@ class MarzbanUtil
             $inbunds[$inbound->type][] = $inbound->name;
         }
 
-
         if (in_array("vmess", array_keys($inbunds))) {
-            $proxis[] = ["vmess" => []];
+            $proxis["vmess"] = [];
         }
         if (in_array("trojan", array_keys($inbunds))) {
-            $proxis[] = ["trojan" => []];
+            $proxis["trojan"] = [];
         }
         if (in_array("shadowsocks", array_keys($inbunds))) {
-            $proxis[] = [
-                "shadowsocks" => [
-                    "method" => "chacha20-poly1305",
-                ],
+            $proxis["shadowsocks"] = [
+                "method" => "chacha20-poly1305",
             ];
         }
         if (in_array("vless", array_keys($inbunds))) {
-            $proxis[] = [
-                "vless" => [
-                    "flow" => "",
-                ],
+            $proxis["vless"] = [
+                "flow" => "",
             ];
         }
 
@@ -137,7 +137,9 @@ class MarzbanUtil
                 self::addConfig($v2rayConfig);
         }
 
-        if (!$res->ok()) throw new MarzbanException("we could not enable this config", MarzbanException::CREATE_CONFIG_FAILED);
+        if (!$res->ok()) {
+            throw new MarzbanException("we could not enable this config", MarzbanException::CREATE_CONFIG_FAILED);
+        }
 
         $exp = $res->json("expire");
 

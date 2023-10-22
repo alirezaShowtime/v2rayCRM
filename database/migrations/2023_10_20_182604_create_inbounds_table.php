@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create("inbunds_v2ray_configs", function (Blueprint $table) {
+        Schema::create("inbound_v2ray_config", function (Blueprint $table) {
             $table->foreignIdFor(V2rayConfig::class);
             $table->foreignIdFor(Inbound::class);
         });
