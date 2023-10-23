@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\MarzbanException;
 use App\Http\Resources\V2rayConfigResource;
+use App\Models\User;
+use App\Models\V2rayConfig;
 use App\Rules\InQueryRule;
 use App\Utils\MarzbanUtil;
 use Illuminate\Http\Request;
@@ -21,7 +23,6 @@ class V2rayConfigController extends Controller
         try {
 
             $config = MarzbanUtil::getConfig($config);
-
         } catch (MarzbanException $e) {
 
             if ($e->getCode() == MarzbanException::CONFIG_NOT_FOUND) {
@@ -31,7 +32,6 @@ class V2rayConfigController extends Controller
         }
 
         return successJsonResource(new V2rayConfigResource($config), $request);
-
     }
 
     public function getAll(Request $request)
@@ -77,7 +77,6 @@ class V2rayConfigController extends Controller
 
             $config = MarzbanUtil::addConfig($config);
             $config->saveOrFail();
-
         } catch (MarzbanException $e) {
 
             if ($e->getCode() == MarzbanException::CONFIG_ALREADY_ADDED) {
@@ -88,5 +87,26 @@ class V2rayConfigController extends Controller
         }
 
         return successJsonResource(new V2rayConfigResource($config), $request);
+    }
+
+    public function getConfigStatistics(Request $request)
+    {
+
+        $userId = $request->user->id;
+
+        $disabled = V2rayConfig::where('enabled_at', null)->where('user_id', $userId)->count();
+
+        $enabled = V2rayConfig::whereNot('enabled_at', null)->where('user_id', $userId)->count();
+
+        $all =  V2rayConfig::whereNot('enabled_at', null)->where('user_id', $userId)->count();
+
+        $expired =  V2rayConfig::whereNot('expired_at', null)->where('user_id', $userId)->count();
+
+        return successRes([
+            "disabled" => $disabled,
+            "enabled" => $enabled,
+            "all" => $all,
+            "expired" => $expired,
+        ]);
     }
 }
