@@ -145,6 +145,44 @@ class V2rayConfigController extends Controller
         return successJsonResource(new V2rayConfigResource($config), $request);
     }
 
+    public function getConfigStatistics(Request $request)
+    {
+
+        $request->validate([
+            'user_id' => ['nullable', new InQueryRule, 'int'],
+        ]);
+
+        $userId = $request->get('user_id');
+
+        if ($userId !== null && User::find($userId) === null) {
+            return errorRes(404, ".کاربری با این شناسه یافت نشد");
+        }
+
+        $disabled = $userId !== null
+            ? V2rayConfig::where('enabled_at', null)->where('user_id', $userId)->count()
+            : V2rayConfig::where('enabled_at', null)->count();
+
+
+        $enabled = $userId !== null
+            ? V2rayConfig::whereNot('enabled_at', null)->where('user_id', $userId)->count()
+            : V2rayConfig::whereNot('enabled_at', null)->count();
+
+        $all = $userId !== null
+            ? V2rayConfig::whereNot('enabled_at', null)->where('user_id', $userId)->count()
+            : V2rayConfig::whereNot('enabled_at', null)->count();
+
+        $expired = $userId !== null
+            ? V2rayConfig::whereNot('expired_at', null)->where('user_id', $userId)->count()
+            : V2rayConfig::whereNot('expired_at', null)->count();
+
+        return successRes([
+            "disabled" => $disabled,
+            "enabled" => $enabled,
+            "all" => $all,
+            "expired" => $expired,
+        ]);
+    }
+
     public function getInbounds(Request $request)
     {
         return Inbound::select(["id", "name", "type"])->groupBy('type')->get();

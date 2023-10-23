@@ -20,3 +20,4 @@ Route::middleware('jwt:admin')->post('user/{id}/config/', [V2rayConfigController
 Route::middleware('jwt:admin')->get('user/{id}/configs', [V2rayConfigController::class, 'getAllOfUser']);
 Route::middleware('jwt:admin')->put('config/{id}/enable', [V2rayConfigController::class, 'enable']);
 Route::middleware('jwt:admin')->get('configs', [V2rayConfigController::class, 'getAll']);
+Route::middleware('jwt:admin')->get('configs/statistics', [V2rayConfigController::class, 'getConfigStatistics']);
