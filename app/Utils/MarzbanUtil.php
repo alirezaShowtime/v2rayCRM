@@ -7,6 +7,7 @@ use App\Models\Settings;
 use App\Models\User;
 use App\Models\V2rayConfig;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Http;
 
 class MarzbanUtil
@@ -183,21 +184,27 @@ class MarzbanUtil
     }
 
     public static function getConfigs(
-        User|int    $user,
+        User|int|null    $user,
         int|null    $offset = null,
         int|null    $limit = null,
         string      $sort = "asc",
         string|null $status = null,
     ): array {
-        $user = is_int($user) ? User::findOrFail($user) : $user;
+
+        $user = is_int($user) ? User::find($user) : $user;
 
         $queryParams = [
             "offset" => $offset,
             "limit" => $limit,
-            "sort" => $sort == "asc" ? "username" : "-username",
-            "username" => $user->username,
             "status" => $status,
         ];
+
+        if ($user !== null) {
+
+            $queryParams["username"] = $user->username;
+            $queryParams["sort"] = $sort == "asc" ? "username" : "-username";
+        }
+
 
         $query = "";
 
@@ -222,14 +229,17 @@ class MarzbanUtil
 
         foreach ($res->json("users") as $config) {
 
+            $r = preg_match("/(\d+)ID_\w+/", $config["username"], $matched);
 
-            if (preg_match("/(\d+)ID_/", $config["username"], $matched) === false) {
+            if ($r === false || $r === 0) {
                 continue;
             }
             $marzbarnUsers[$matched[1]] = $config;
         }
 
-        $v2rayConfigs = V2rayConfig::where('user_id', $user->id)->orderBy("id", $sort);
+        $v2rayConfigs = $user == null
+            ? V2rayConfig::orderBy("id", $sort)
+            : V2rayConfig::where('user_id', $user->id)->orderBy("id", $sort);
 
         if ($offset != null) {
             $v2rayConfigs->skip($offset);

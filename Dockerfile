@@ -39,13 +39,13 @@ RUN curl --insecure https://getcomposer.org/composer.phar -o /usr/bin/composer &
 
 WORKDIR /var/www/html
 
-RUN chown -R www-data:www-data /var/www/html
-
 RUN composer install
-
-RUN php artisan key:generate \
-    && php artisan storage:link
 
 RUN mkdir -p /var/www/html/public
 
+RUN chown -R www-data:www-data /var/www/html
+
 USER $user
+
+RUN php artisan key:generate \
+    && php artisan storage:link

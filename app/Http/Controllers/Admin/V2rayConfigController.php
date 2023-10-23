@@ -56,7 +56,7 @@ class V2rayConfigController extends Controller
         }
     }
 
-    public function getAll(Request $request, int $id)
+    public function getAllOfUser(Request $request, int $id)
     {
         $request->validate([
             'filter' => [new InQueryRule, 'in:active,disabled,expired'],
@@ -88,6 +88,34 @@ class V2rayConfigController extends Controller
 
         return successJsonResource(V2rayConfigResource::collection($configs), $request);
     }
+
+    public function getAll(Request $request)
+    {
+        $request->validate([
+            'filter' => [new InQueryRule, 'in:active,disabled,expired'],
+            'sort' => [new InQueryRule, 'in:desc,asc'],
+            'page' => [new InQueryRule, 'int', 'min:1',],
+            'pageSize' => [new InQueryRule, 'int', 'min:1',],
+        ]);
+
+        $sort = $request->query("sort", "desc");
+        $filter = $request->query("filter");
+        $page = $request->query("page", 1);
+        $pageSize = $request->query("pageSize", 30);
+
+        $offset = ($page - 1) * $pageSize;
+
+        $configs = MarzbanUtil::getConfigs(
+            user: null,
+            offset: $offset,
+            limit: $pageSize,
+            sort: $sort,
+            status: $filter,
+        );
+
+        return successJsonResource(V2rayConfigResource::collection($configs), $request);
+    }
+
 
     public function enable(Request $request, int $id)
     {
