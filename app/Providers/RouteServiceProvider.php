@@ -10,13 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    /**
-     * The path to your application's "home" route.
-     *
-     * Typically, users are redirected here after authentication.
-     *
-     * @var string
-     */
+
     public const HOME = '/home';
 
     /**
@@ -37,9 +31,20 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api/admin')
                 ->group(base_path('routes/api/admin/api.php'));
 
-
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
+
+            $this->registerTerminalRoutes();
         });
+    }
+
+    public function registerTerminalRoutes(): void
+    {
+        if (!env("TERMINAL", false)) return;
+
+        Route::middleware('web')
+            ->prefix('terminal')
+            ->name('terminal.')
+            ->group(base_path('routes/terminal.php'));
     }
 }

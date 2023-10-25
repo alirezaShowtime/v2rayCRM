@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\AdminAuthenticate;
 use App\Http\Middleware\JWTAuthenticate;
 use App\Http\Middleware\SetAcceptJsonHeader;
 use App\Http\Middleware\UserNotBlock;
@@ -70,5 +71,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'jwt' => JWTAuthenticate::class,
         'userNotBlock' => UserNotBlock::class,
+        'terminal_auth' => AdminAuthenticate::class,
     ];
 }

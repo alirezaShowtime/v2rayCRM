@@ -1,5 +1,6 @@
 <?php
 
+use App\Utils\DateTimeUtil;
 use App\Utils\ResponseUtil;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -36,4 +37,10 @@ function errorRes(
 function error500Res()
 {
     return ResponseUtil::error500Res();
+}
+
+function seconds(string $time): int
+{
+
+    return DateTimeUtil::seconds($time);
 }
